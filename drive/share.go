@@ -26,7 +26,11 @@ func (self *Drive) Share(args ShareArgs) error {
 		Domain:             args.Domain,
 	}
 
-	_, err := self.service.Permissions.Create(args.FileId, permission).Do()
+	call := self.service.Permissions.Create(args.FileId, permission)
+	if permission.Role == "owner" {
+		call.TransferOwnership(true)
+	}
+	_, err := call.Do()
 	if err != nil {
 		return fmt.Errorf("Failed to share file: %s", err)
 	}
